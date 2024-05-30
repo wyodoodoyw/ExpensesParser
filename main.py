@@ -5,7 +5,8 @@ from tkinter.filedialog import askopenfile
 import re
 import json
 
-path = '/Users/wyodoodoyw/Local Documents/Python/Expenses Parser/202403-MealAllowances.pdf'
+display_year = None
+display_month = None
 
 
 def get_pdf_content_lines(path):
@@ -37,7 +38,7 @@ def find_end_line(data):
     return [idx for idx, s in enumerate(data) if 'Zurich' in s][0] + 1
 
 
-def parse(data):
+def parse(data, year, month):
     for i in range(find_start_line(data), find_end_line(data)):
 
         line = data[i]
@@ -118,10 +119,10 @@ def parse(data):
             new_destination[destination]['dinner'] = None
             new_destination[destination]['snack'] = None
             new_destination[destination]['total'] = None
-        save(new_destination)
+        save(new_destination, year, month)
 
 
-def save(new_destination):
+def save(new_destination, year, month):
     try:
         with open('data.json', 'r') as data_file:
             data = json.load(data_file)
@@ -141,14 +142,14 @@ def save(new_destination):
 def pre_search():
     search_term = search_entry.get()
     is_usa = search_term in ['SFO', 'LAX', 'SAN', 'PSP', 'SMF',
-                'SNA', 'MCO', 'TPA', 'FLL', 'PBI',
-                'MIA', 'RSW', 'SRQ', 'HNL', 'KOA',
-                'OGG', 'LAS', 'ORD', 'DTW', 'MPS',
-                'STL', 'CVG', 'CLE', 'CMH', 'IND',
-                'EWR', 'BOS', 'LGA', 'PHL', 'PIT',
-                'IAD', 'BDL', 'ATL', 'AUS', 'DFW',
-                'IAH', 'BNA', 'MSY', 'CHS', 'DEN',
-                'PHX', 'SEA', 'SLC', 'PDX', 'ANC']
+                             'SNA', 'MCO', 'TPA', 'FLL', 'PBI',
+                             'MIA', 'RSW', 'SRQ', 'HNL', 'KOA',
+                             'OGG', 'LAS', 'ORD', 'DTW', 'MPS',
+                             'STL', 'CVG', 'CLE', 'CMH', 'IND',
+                             'EWR', 'BOS', 'LGA', 'PHL', 'PIT',
+                             'IAD', 'BDL', 'ATL', 'AUS', 'DFW',
+                             'IAH', 'BNA', 'MSY', 'CHS', 'DEN',
+                             'PHX', 'SEA', 'SLC', 'PDX', 'ANC']
     if re.findall(r'Y[A-Z]{2}', search_term):
         search('Canada')
     elif is_usa:
@@ -192,30 +193,32 @@ def search(search_term):
     except FileNotFoundError:
         print("File not found.")
 
-def getExpensesFile():
+
+def get_expenses_file():
     if not exists('data.json'):
-        print('!exists')
         file = askopenfile()
         full_file_name = file.name
         file_name_suffix = re.split('/', full_file_name)[-1]
-        if re.findall('202\d{3}-MealAllowances\.\w{3}', file_name_suffix):
+        if re.findall('202\d{3}-Meal\s?Allowances\.\w{3}', file_name_suffix):
+            year = re.findall('\d{6}', file_name_suffix)[0][:4]
+            month = re.findall('\d{6}', file_name_suffix)[0][-2:]
+            print(display_year)
             data = read_file_lines(full_file_name)
-            parse(data)
+            parse(data, year, month)
         else:
-            print(f'File does not match: {file_name_suffix}')
+            print(f'File does not match. You uploaded: {file_name_suffix}')
+            print('Filename format expected" 202xxx-MealAllowances.pdf')
             pass
     else:
         pass
 
 
 # --- MAIN PROGRAM
+get_expenses_file()
+
 window = Tk()
 window.title('Pairing Expense Parser')
 window.config(padx=10, pady=10)
-
-getExpensesFile()
-#data = read_file_lines(path)
-#parse()
 
 title_label = Label(text='Pairing Expenses', pady=20)
 title_label.grid(column=0, row=0, columnspan=4)

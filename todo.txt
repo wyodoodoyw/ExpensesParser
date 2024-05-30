@@ -1,10 +1,10 @@
-1. check if pdf in folder
-2. if yes, don't prompt to upload file
-3. if no, prompt to upload file, copy file to folder etc
-4. parse that file
-5. detect year/month from pdf and json files
+✅1. check if json in folder check
+✅2. if yes, don't prompt to upload file
+✅3. if no, prompt to upload file, copy file to folder etc
+✅4. parse that file
+✅5. detect year/month from pdf and json files
 6. pop-up if current months pdf not uploaded yet
-7. drop down of available pdfs?
+7. drop down of available months?
 
 
 
