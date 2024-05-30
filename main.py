@@ -193,16 +193,20 @@ def search(search_term):
         print("File not found.")
 
 def getExpensesFile():
-    curr_dir = os.getcwd()
-    json_exists = exists(data.json)
-    file = askopenfile()
-    full_file_name = file.name
-    file_name_suffix = re.split('/', full_file_name)[-1]
-    if re.findall('202\d{3}-MealAllowances\.\w{3}', file_name_suffix):
-        data = read_file_lines(full_file_name)
-        parse(data)
+    if not exists('data.json'):
+        print('!exists')
+        file = askopenfile()
+        full_file_name = file.name
+        file_name_suffix = re.split('/', full_file_name)[-1]
+        if re.findall('202\d{3}-MealAllowances\.\w{3}', file_name_suffix):
+            data = read_file_lines(full_file_name)
+            parse(data)
+        else:
+            print(f'File does not match: {file_name_suffix}')
+            pass
     else:
-        print(f'File does not match: {file_name}')
+        pass
+
 
 # --- MAIN PROGRAM
 window = Tk()
