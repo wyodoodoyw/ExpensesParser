@@ -1,9 +1,11 @@
+from os.path import exists
 from PyPDF2 import PdfReader
 from tkinter import *
+from tkinter.filedialog import askopenfile
 import re
 import json
 
-path = '/Users/wyodoodoyw/Local Documents/Python/Expenses Parser/202406-MealAllowances.pdf'
+path = '/Users/wyodoodoyw/Local Documents/Python/Expenses Parser/202403-MealAllowances.pdf'
 
 
 def get_pdf_content_lines(path):
@@ -14,30 +16,29 @@ def get_pdf_content_lines(path):
                 yield line
 
 
-def read_file_lines():
+def read_file_lines(path):
     #convert pdf file to array of strings, one string per line
     file_as_lines = []
-
-    file = r'/Users/wyodoodoyw/Local Documents/Python/Expenses Parser/202404-MealAllowances.pdf'
-    for line in get_pdf_content_lines(file):
+    #global path
+    for line in get_pdf_content_lines(path):
         file_as_lines.append(line)
 
     return file_as_lines
 
 
-def find_start_line():
+def find_start_line(data):
     #locate last line of header/column labels
     for i in range(0, len(data)):
         if "AllowanceAdjustment" in data[i]:
             return i + 1
 
 
-def find_end_line():
+def find_end_line(data):
     return [idx for idx, s in enumerate(data) if 'Zurich' in s][0] + 1
 
 
-def parse():
-    for i in range(find_start_line(), find_end_line()):
+def parse(data):
+    for i in range(find_start_line(data), find_end_line(data)):
 
         line = data[i]
 
@@ -64,6 +65,17 @@ def parse():
         #destinations can be bracelet or per diem
         if not '$' in line:
             bracelet_provided = True
+            # price_list = None
+            # percentage_list = None
+            # previous_allowance = None
+            # adjustment = None
+            # status = None
+            # percent_change = None
+            # breakfast = None
+            # lunch = None
+            # dinner = None
+            # snack = None
+            # total = None
         else:
             bracelet_provided = False
             price_list = re.findall(r'\d{1,3}\.\d{2}', line)
@@ -180,14 +192,26 @@ def search(search_term):
     except FileNotFoundError:
         print("File not found.")
 
+def getExpensesFile():
+    curr_dir = os.getcwd()
+    json_exists = exists(data.json)
+    file = askopenfile()
+    full_file_name = file.name
+    file_name_suffix = re.split('/', full_file_name)[-1]
+    if re.findall('202\d{3}-MealAllowances\.\w{3}', file_name_suffix):
+        data = read_file_lines(full_file_name)
+        parse(data)
+    else:
+        print(f'File does not match: {file_name}')
 
 # --- MAIN PROGRAM
-data = read_file_lines()
-parse()
-
 window = Tk()
 window.title('Pairing Expense Parser')
 window.config(padx=10, pady=10)
+
+getExpensesFile()
+#data = read_file_lines(path)
+#parse()
 
 title_label = Label(text='Pairing Expenses', pady=20)
 title_label.grid(column=0, row=0, columnspan=4)
