@@ -2,6 +2,7 @@ from os.path import exists
 from PyPDF2 import PdfReader
 from tkinter import *
 from tkinter.filedialog import askopenfile
+from datetime import datetime
 import re
 import json
 
@@ -10,6 +11,7 @@ display_month = None
 
 
 def get_pdf_content_lines(path):
+    #pdf --> lines
     with open(path, 'rb') as f:
         pdf_reader = PdfReader(f)
         for page in pdf_reader.pages:
@@ -18,9 +20,8 @@ def get_pdf_content_lines(path):
 
 
 def read_file_lines(path):
-    #convert pdf file to array of strings, one string per line
+    #lines --> array of strings
     file_as_lines = []
-    #global path
     for line in get_pdf_content_lines(path):
         file_as_lines.append(line)
 
@@ -35,6 +36,7 @@ def find_start_line(data):
 
 
 def find_end_line(data):
+    #locate last line in pdf
     return [idx for idx, s in enumerate(data) if 'Zurich' in s][0] + 1
 
 
@@ -66,17 +68,15 @@ def parse(data, year, month):
         #destinations can be bracelet or per diem
         if not '$' in line:
             bracelet_provided = True
-            # price_list = None
-            # percentage_list = None
-            # previous_allowance = None
-            # adjustment = None
-            # status = None
-            # percent_change = None
-            # breakfast = None
-            # lunch = None
-            # dinner = None
-            # snack = None
-            # total = None
+            previous_allowance = None
+            adjustment = None
+            status = None
+            percent_change = None
+            breakfast = None
+            lunch = None
+            dinner = None
+            snack = None
+            total = None
         else:
             bracelet_provided = False
             price_list = re.findall(r'\d{1,3}\.\d{2}', line)
@@ -109,37 +109,29 @@ def parse(data, year, month):
         }
         if 'Zurich' in destination:
             new_destination[destination]['airport_code'] = '*'
-        elif new_destination[destination]['bracelet_provided']:
-            new_destination[destination]['previous_allowance'] = None
-            new_destination[destination]['adjustment'] = None
-            new_destination[destination]['status'] = None
-            new_destination[destination]['percent_change'] = None
-            new_destination[destination]['breakfast'] = None
-            new_destination[destination]['lunch'] = None
-            new_destination[destination]['dinner'] = None
-            new_destination[destination]['snack'] = None
-            new_destination[destination]['total'] = None
         save(new_destination, year, month)
 
 
 def save(new_destination, year, month):
+    #save destination objects to json file
+    file_name = f'{year}'+f'{month}'
     try:
-        with open('data.json', 'r') as data_file:
+        with open(f'{file_name}.json', 'r') as data_file:
             data = json.load(data_file)
 
     except FileNotFoundError:
-        with open('data.json', 'w') as data_file:
+        with open(f'{file_name}.json', 'w') as data_file:
             json.dump(new_destination, data_file, indent=4)
 
     else:
         data.update(new_destination)
-        with open('data.json', 'w') as data_file:
+        with open(f'{file_name}.json', 'w') as data_file:
             json.dump(data, data_file, indent=4)
     finally:
         pass
 
 
-def pre_search():
+def pre_search(year, month):
     search_term = search_entry.get()
     is_usa = search_term in ['SFO', 'LAX', 'SAN', 'PSP', 'SMF',
                              'SNA', 'MCO', 'TPA', 'FLL', 'PBI',
@@ -151,20 +143,23 @@ def pre_search():
                              'IAH', 'BNA', 'MSY', 'CHS', 'DEN',
                              'PHX', 'SEA', 'SLC', 'PDX', 'ANC']
     if re.findall(r'Y[A-Z]{2}', search_term):
-        search('Canada')
+        search('Canada', year, month)
     elif is_usa:
-        search('U.S.')
+        search('U.S.', year, month)
     elif search_term in ['MTY', 'TQO']:
-        search('Mexico - Other')
+        search('Mexico - Other', year, month)
     elif search_term in ['KIN', 'MBJ']:
-        search('Jamaica')
+        search('Jamaica', year, month)
     else:
-        search(search_term)
+        year = datetime.today().year
+        month = f'{datetime.today().month:02d}'
+        search(search_term, year, month)
 
 
-def search(search_term):
+def search(search_term, year, month):
+    file_name = f'{year}' + f'{month}'
     try:
-        with (open('data.json', 'r') as data_file):
+        with (open(f'{file_name}.json', 'r') as data_file):
             data = json.load(data_file)
             for destination in data:
                 if search_term in destination:
@@ -193,39 +188,42 @@ def search(search_term):
     except FileNotFoundError:
         print("File not found.")
 
-
-def get_expenses_file():
-    if not exists('data.json'):
-        file = askopenfile()
-        full_file_name = file.name
-        file_name_suffix = re.split('/', full_file_name)[-1]
-        if re.findall('202\d{3}-Meal\s?Allowances\.\w{3}', file_name_suffix):
-            year = re.findall('\d{6}', file_name_suffix)[0][:4]
-            month = re.findall('\d{6}', file_name_suffix)[0][-2:]
-            print(display_year)
-            data = read_file_lines(full_file_name)
-            parse(data, year, month)
-        else:
-            print(f'File does not match. You uploaded: {file_name_suffix}')
-            print('Filename format expected" 202xxx-MealAllowances.pdf')
-            pass
+def upload():
+    file = askopenfile()
+    full_file_name = file.name
+    file_name_suffix = re.split('/', full_file_name)[-1]
+    if re.findall('202\d{3}-Meal\s?Allowances\.\w{3}', file_name_suffix):
+        year = re.findall('\d{6}', file_name_suffix)[0][:4]
+        month = re.findall('\d{6}', file_name_suffix)[0][-2:]
+        data = read_file_lines(full_file_name)
+        parse(data, year, month)
     else:
+        print(f'File does not match. You uploaded: {file_name_suffix}')
+        print('Filename format expected" 202xxx-MealAllowances.pdf')
         pass
+
+def get_expenses_file(year, month):
+    file_name = f'{year}' + f'{month}'
+    if not exists(f'{file_name}.json'):
+        upload()
 
 
 # --- MAIN PROGRAM
-get_expenses_file()
+year = datetime.today().year
+month = f'{datetime.today().month:02d}'
+get_expenses_file(year=year, month=month)
 
 window = Tk()
 window.title('Pairing Expense Parser')
+#window.geometry('600x300')
 window.config(padx=10, pady=10)
 
-title_label = Label(text='Pairing Expenses', pady=20)
+title_label = Label(text=f'Pairing Expenses for {month} {year}', pady=20)
 title_label.grid(column=0, row=0, columnspan=4)
 
 search_label = Label(text='Search: ')
 search_entry = Entry()
-search_btn = Button(text='Search', command=pre_search)
+search_btn = Button(text='Search', command= lambda: pre_search(year=year, month=month))
 
 destination_title_label = Label(text="Destination: ")
 destination_label = Label()
@@ -240,6 +238,7 @@ S_label = Label()
 line_label = Label(text='-----------------')
 total_title_label = Label(text='Total: ')
 total_label = Label()
+upload_btn = Button(text="Upload New Expenses pdf", command=upload)
 
 search_label.grid(column=0, row=1)
 search_entry.grid(column=1, row=1, columnspan=2)
@@ -257,5 +256,6 @@ S_label.grid(column=2, row=6)
 line_label.grid(column=1, row=7, columnspan=3)
 total_title_label.grid(column=1, row=8)
 total_label.grid(column=2, row=8)
+upload_btn.grid(column=2, row=9)
 
 window.mainloop()
