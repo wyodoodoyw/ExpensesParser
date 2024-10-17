@@ -161,7 +161,7 @@ def index():
     if search_query:
         # data = db.get_or_404(Destination, search_query)
         # data = db.session.execute(db.select(Destination).where(Destination.airport_code == search_query)).one()
-        data = Destination.query.first()
+        data = Destination.query.filter_by(airport_code=search_query).first()
         print(f'data: {data}')
     else:
         data = None

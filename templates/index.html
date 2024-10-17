@@ -14,13 +14,13 @@
 
         {% if data %}
         <div class="mx-auto w-50 p-10">
-            <p>Canada</p>
-            <p>Breakfast: {{ data['Canada']['breakfast'] }}</p>
-            <p>Lunch: {{ data['Canada']['lunch'] }}</p>
-            <p>Dinner: {{ data['Canada']['dinner'] }}</p>
-            <p>Snack: {{ data['Canada']['snack'] }}</p>
+            <p>{{ data['destination'] }}</p>
+            <p>Breakfast: ${{ data['breakfast'] }}</p>
+            <p>Lunch: ${{ data['lunch'] }}</p>
+            <p>Dinner: ${{ data['dinner'] }}</p>
+            <p>Snack: ${{ data['snack'] }}</p>
             <p>-------------------------</p>
-            <p>Total: {{ data['Canada']['total'] }}</p>
+            <p>Total: ${{ data['total'] }}</p>
         </div>
         {% endif %}
         {% endif %}
