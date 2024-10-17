@@ -1,8 +1,7 @@
 from os.path import exists
 from PyPDF2 import PdfReader
-from tkinter import *
-from tkinter.filedialog import askopenfile
 from datetime import datetime
+from main import Destination, db, app
 import re
 import json
 
@@ -42,74 +41,66 @@ def find_end_line(data):
 
 def parse(data, year, month):
     for i in range(find_start_line(data), find_end_line(data)):
+        new_destination = Destination()
+        new_destination.id = i
 
         line = data[i]
 
         if 'Canada' in line:
-            destination = 'Canada'
+            new_destination.destination = 'Canada'
         elif 'Jamaica' in line:
-            destination = 'Jamaica - Other'
+            new_destination.destination = 'Jamaica - Other'
         elif 'Mexico - Other' in line:
-            destination = 'Mexico - Other'
+            new_destination.destination = 'Mexico - Other'
         elif 'U.S.' in line:
-            destination = 'U.S.'
+            new_destination.destination = 'U.S.'
         else:
             dest_list = re.findall(r'[A-Z]{3}\)', line)
             last_index_destination = line.index(dest_list[len(dest_list) - 1]) + 5
-            destination = line[0:last_index_destination]
+            new_destination.destination = line[0:last_index_destination]
 
-        line = line[len(destination):]
-        country_code = re.findall(r'[A-Z]{2}', line)[0]
+        line = line[len(new_destination.destination):]
+        new_destination.country_code = re.findall(r'[A-Z]{2}', line)[0]
         # station column could be Airport code (ex. ALG) or * for multiple
         if re.search(r'[A-Z]{3}', line):
-            airport_code = re.findall(r'[A-Z]{3}', line)[0]
+            new_destination.airport_code = re.findall(r'[A-Z]{3}', line)[0]
         else:
-            airport_code = '*'
+            new_destination.airport_code = '*'
         # destinations can be bracelet or per diem
         if not '$' in line:
-            bracelet_provided = True
-            previous_allowance = None
-            adjustment = None
-            status = None
-            percent_change = None
-            breakfast = None
-            lunch = None
-            dinner = None
-            snack = None
-            total = None
+            new_destination.bracelet_provided = True
+            new_destination.prev_allowance = None
+            new_destination.adjustment = None
+            # new_destination.status = None
+            new_destination.percent_change = None
+            new_destination.breakfast = None
+            new_destination.lunch = None
+            new_destination.dinner = None
+            new_destination.snack = None
+            new_destination.total = None
         else:
-            bracelet_provided = False
-            price_list = re.findall(r'\d{1,3}\.\d{2}', line)
-            percentage_list = re.findall(r'\d{1,2}\.\d{1,2}\%', line)
-            previous_allowance = price_list[0]
-            adjustment = price_list[1]
-            status = ('*No Change' in line)
-            percent_change = percentage_list[0]
-            breakfast = price_list[2]
-            lunch = price_list[3]
-            dinner = price_list[4]
-            snack = price_list[5]
-            total = price_list[6]
+            new_destination.bracelet_provided = False
+            price_list = re.findall(r'-?\d{1,3}\.\d{2}', line)
+            # print(f'{new_destination.destination}, Price List: {price_list}')
+            # percentage_list = re.findall(r'\d{1,2}\.\d{1,2}\%', line)
+            new_destination.prev_allowance = price_list[0]
+            new_destination.adjustment = price_list[1]
+            # new_destination.status = ('*No Change' in line)
+            # new_destination.percent_change = percentage_list[0]
+            new_destination.percent_change = price_list[2]
+            new_destination.breakfast = price_list[3]
+            new_destination.lunch = price_list[4]
+            new_destination.dinner = price_list[5]
+            new_destination.snack = price_list[6]
+            new_destination.total = price_list[7]
 
-        new_destination = {
-            destination: {
-                'country_code': country_code,
-                'airport_code': airport_code,
-                'bracelet_provided': bracelet_provided,
-                'previous_allowance': previous_allowance,
-                'adjustment': adjustment,
-                'status': status,
-                'percent_change': percent_change,
-                'breakfast': breakfast,
-                'lunch': lunch,
-                'dinner': dinner,
-                'snack': snack,
-                'total': total
-            }
-        }
-        if 'Zurich' in destination:
-            new_destination[destination]['airport_code'] = '*'
-        save(new_destination, year, month)
+        if 'Zurich' in new_destination.destination:
+            new_destination.airport_code = '*'
+
+        with app.app_context():
+            # db.session.add(new_destination)
+            # db.session.commit()
+            pass
 
 
 def save(new_destination, year, month):
