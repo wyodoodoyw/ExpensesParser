@@ -31,8 +31,21 @@ db.init_app(app)
 Bootstrap5(app)
 
 year = datetime.today().year
-month = f'{datetime.today().month:02d}'
-
+months = {
+                '01': 'January',
+                '02': 'February',
+                '03': 'March',
+                '04': 'April',
+                '05': 'May',
+                '06': 'June',
+                '07': 'July',
+                '08': 'August',
+                '09': 'September',
+                '10': 'October',
+                '11': 'November',
+                '12': 'December',
+            }
+month = months[str(datetime.now().month)]
 
 # CREATE TABLE
 class Destination(db.Model):
@@ -75,8 +88,8 @@ def get_drop_list():
     # files_list = [f for f in listdir(path) if isfile(join(path, f))]
     for file in listdir(path):
         if isfile(join(path, file)):
-            files_list.append((file, file))
-    files_list.append((None, 'Upload New File'))
+            files_list.append((file, f'{months[file[4:6]]} {file[0:4]}'))
+    files_list.append(('upload', 'Upload New File'))
     return files_list
 
 
@@ -103,8 +116,8 @@ def index():
             data = Destination.query.filter_by(country_code=search_query['q']).first()
         else:
             data = None
-        return render_template("index.html", form=expenses_form, data=data)
-    return render_template("index.html", form=expenses_form, data=None)
+        return render_template("index.html", form=expenses_form, data=data, year=year, month=month)
+    return render_template("index.html", form=expenses_form, data=None, year=year, month=month)
 
 
 

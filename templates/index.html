@@ -7,7 +7,7 @@
 <div class="content">
     <h1 class="heading mx-auto text-center">Expense Parser</h1>
     <div class="mx-auto">
-        <p class="description mx-auto text-center">Pairing Expenses Parser for YYYY MM</p>
+        <p class="description mx-auto text-center">Pairing Expenses Parser for {{ month }} {{ year }}</p>
 
         {% if form %}
         <div class="col-md-6 mx-auto">{{ render_form(form, novalidate=True) }}</div>
