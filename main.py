@@ -59,9 +59,24 @@ with app.app_context():
     db.create_all()
 
 
+def upload():
+    uploaded_file = request.files['file']
+    if uploaded_file.filename != '':
+        uploaded_file.save(uploaded_file.filename)
+        data = read_file_lines(uploaded_file.filename)
+        parse(data, year, month)
+    return redirect(url_for('index'))
+
+
 def get_drop_list():
+    files_list = []
     path = 'instance'
-    return [f for f in listdir(path) if isfile(join(path, f))]
+    # files_list = [f for f in listdir(path) if isfile(join(path, f))]
+    for file in listdir(path):
+        if isfile(join(path, file)):
+            files_list.append((file, file))
+    files_list.append((None, 'Upload New File'))
+    return files_list
 
 
 class ExpensesForm(FlaskForm):
@@ -72,100 +87,85 @@ class ExpensesForm(FlaskForm):
     search_btn = SubmitField(label="Search", name='search')
 
 
-# def allowed_file(filename):
-#     return '.' in filename and \
-#         filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+def pre_search(search_term):
+    usa_airports = ['SFO', 'LAX', 'SAN', 'PSP', 'SMF',
+                    'SNA', 'MCO', 'TPA', 'FLL', 'PBI',
+                    'MIA', 'RSW', 'SRQ', 'HNL', 'KOA',
+                    'OGG', 'LAS', 'ORD', 'DTW', 'MPS',
+                    'STL', 'CVG', 'CLE', 'CMH', 'IND',
+                    'EWR', 'BOS', 'LGA', 'PHL', 'PIT',
+                    'IAD', 'BDL', 'ATL', 'AUS', 'DFW',
+                    'IAH', 'BNA', 'MSY', 'CHS', 'DEN',
+                    'PHX', 'SEA', 'SLC', 'PDX', 'ANC',
+                    'U.S.A', 'US', 'USA']
+    hawaii_airports = ['LIH', 'Lihue', 'OGG', 'Maui']
+    can_airports = ['YYC', 'YEG', 'YFC', 'YQX', 'YHZ',
+                    'YUL', 'YOW', 'YQB', 'YYT', 'YYZ',
+                    'YVR', 'YYJ', 'YWG', 'YDF', 'YXX',
+                    'YYR', 'ZBF']
+    if search_term in usa_airports and search_term not in hawaii_airports:
+        return {'type': 'destination', 'q': 'U.S.'}
+    elif search_term in ['BNE', 'MEL', 'Brisbane', 'Melbourne', 'Australia']:
+        return {'type': 'country', 'q': 'AU'}
+    elif search_term in ['BRU', 'LGG', 'Brussels', 'Liège', 'Liege', 'Belgium']:
+        return {'type': 'country', 'q': 'BE'}
+    elif search_term in ['DEL', 'BOM', 'Delhi', 'Mumbai', 'Bombay', 'India']:
+        return {'type': 'country', 'q': 'IN'}
+    elif search_term in ['DUB', 'SNN', 'Dublin', 'Shannon', 'Ireland']:
+        return {'type': 'country', 'q': 'IE'}
+    elif search_term in ['FRA', 'MUC', 'TXL', 'Frankfort', 'Munich', 'Berlin', 'Germany']:
+        return {'type': 'country', 'q': 'DE'}
+    elif search_term in ['Hong Kong', 'HK', 'HKG']:
+        return {'type': 'country', 'q': 'HK'}
+    elif search_term in ['KIN', 'MBJ']:
+        return {'type': 'country', 'q': 'JM'}
+    elif search_term in ['LIS', 'OPO', 'Lisbon', 'Porto', 'Portugal']:
+        return {'type': 'country', 'q': 'PT'}
+    elif search_term in ['LHR', 'LGW', 'London', 'Heathrow', 'Gatwick', 'England', 'UK', 'U.K.']:
+        return {'type': 'country', 'q': 'GB'}
+    elif search_term in ['MAD', 'BCN', 'Madrid', 'Barcelona', 'Spain']:
+        return {'type': 'country', 'q': 'ES'}
+    elif search_term in ['MTY', 'TQO']:
+        return {'type': 'country', 'q': 'MX'}
+    elif search_term in ['NRT', 'HND', 'KIX', 'Narita', 'Haneda', 'Osaka', 'Tokyo', 'Japan']:
+        return {'type': 'country', 'q': 'JP'}
+    elif search_term in ['CDG', 'LYS', 'NCE', 'TLS', 'Paris', 'Lyon', 'Nice', 'Toulouse', 'France']:
+        return {'type': 'country', 'q': 'FR'}
+    elif search_term in ['FCO', 'MXP', 'VCE', 'Rome', 'Milan', 'Venice', 'Italy']:
+        return {'type': 'country', 'q': 'IT'}
+    elif search_term in ['GRU', 'GIG', 'Sao Paulo', 'Rio de Janeiro', 'Rio', 'Brazil']:
+        return {'type': 'country', 'q': 'BR'}
+    elif search_term in ['SIN', 'QPG', 'Singapore']:
+        return {'type': 'country', 'q': 'SG'}
+    elif search_term in ['ZRH', 'GVA', 'BSL', 'Zurich', 'Geneva', 'Basel', 'Swiss', 'Switzerland']:
+        return {'type': 'country', 'q': 'CH'}
+    elif re.findall(r'Y[A-Z]{2}', search_term) or search_term in ['Canada']:
+        return {'type': 'destination', 'q': 'Canada'}
+    elif re.search(r'[A-Z]{3}', search_term):
+        return {'type': 'airport_code', 'q': search_term}
+    else:
+        return {'type': 'destination', 'q': search_term}
+        # year = datetime.today().year
+        # month = f'{datetime.today().month:02d}'
 
 
-# def pre_search(year, month):
-#     # make dynamic
-#     search_term = 'YYZ'
-#     is_usa = search_term in ['SFO', 'LAX', 'SAN', 'PSP', 'SMF',
-#                              'SNA', 'MCO', 'TPA', 'FLL', 'PBI',
-#                              'MIA', 'RSW', 'SRQ', 'HNL', 'KOA',
-#                              'OGG', 'LAS', 'ORD', 'DTW', 'MPS',
-#                              'STL', 'CVG', 'CLE', 'CMH', 'IND',
-#                              'EWR', 'BOS', 'LGA', 'PHL', 'PIT',
-#                              'IAD', 'BDL', 'ATL', 'AUS', 'DFW',
-#                              'IAH', 'BNA', 'MSY', 'CHS', 'DEN',
-#                              'PHX', 'SEA', 'SLC', 'PDX', 'ANC']
-#     if re.findall(r'Y[A-Z]{2}', search_term):
-#         search_term = 'Canada'
-#     elif is_usa:
-#         search_term = 'U.S.'
-#     elif search_term in ['MTY', 'TQO']:
-#         search_term = 'Mexico - Other'
-#     elif search_term in ['KIN', 'MBJ']:
-#         search_term = 'Jamaica'
-#     else:
-#         year = datetime.today().year
-#         month = f'{datetime.today().month:02d}'
-#     return search(search_term, year, month)
-
-
-# def search(search_term, year, month):
-#     file_name = f'{year}' + f'{month}'
-#     destination_to_display = {"Canada": {
-#         # "country_code": "",
-#         # "airport_code": "",
-#         "bracelet_provided": False,
-#         # "previous_allowance": "",
-#         # "adjustment": "",
-#         # "status": True,
-#         # "percent_change": "",
-#         "breakfast": "",
-#         "lunch": "",
-#         "dinner": "",
-#         "snack": "",
-#         "total": ""}
-#     }
-#     try:
-#         with (open(f'{file_name}.json', 'r') as data_file):
-#             data = json.load(data_file)
-#             for destination in data:
-#
-#                 if search_term in destination:
-#                     #destination_label.config(text=destination)
-#                     if data[destination]['bracelet_provided']:
-#                         destination_to_display[search_term]["breakfast"] = ''
-#                         destination_to_display[search_term]["lunch"] = ''
-#                         destination_to_display[search_term]["dinner"] = ''
-#                         destination_to_display[search_term]["snack"] = ''
-#                         destination_to_display[search_term]["total"] = ''
-#                         destination_to_display[{search_term}]["total"] = 'Bracelet Provided'
-#                     else:
-#                         destination_to_display[search_term]["breakfast"] = f'${data[destination]['breakfast']}'
-#                         destination_to_display[search_term]["lunch"] = f'${data[destination]['lunch']}'
-#                         destination_to_display[search_term]["dinner"] = f'${data[destination]['dinner']}'
-#                         destination_to_display[search_term]["snack"] = f'${data[destination]['snack']}'
-#                         destination_to_display[search_term]["total"] = f'${data[destination]['total']}'
-#                 else:
-#                     pass
-#                     destination_to_display[search_term]["breakfast"] = ''
-#                     destination_to_display[search_term]["lunch"] = ''
-#                     destination_to_display[search_term]["dinner"] = ''
-#                     destination_to_display[search_term]["snack"] = ''
-#                     destination_to_display[search_term]["total"] = ''
-#                     destination_to_display[search_term]["total"] = 'Not Found'
-#         return destination_to_display
-#     except FileNotFoundError:
-#         print("File not found.")
-
-
-@app.route("/")
+@app.route("/", methods=["GET"])
 def index():
-    # print(request.args)
     expenses_form = ExpensesForm()
     search_query = request.args.get('q')
-    print(search_query)
     if search_query:
-        # data = db.get_or_404(Destination, search_query)
-        # data = db.session.execute(db.select(Destination).where(Destination.airport_code == search_query)).one()
-        data = Destination.query.filter_by(airport_code=search_query).first()
-        print(f'data: {data}')
-    else:
-        data = None
-    return render_template("index.html", form=expenses_form, data=data)
+        search_query = pre_search(search_query)
+        if search_query['type'] == 'airport_code':
+            data = Destination.query.filter_by(airport_code=search_query['q']).first()
+        elif search_query['type'] == 'destination':
+            data = Destination.query.filter_by(destination=search_query['q']).first()
+        elif search_query['type'] == 'country':
+            data = Destination.query.filter_by(country_code=search_query['q']).first()
+        else:
+            data = None
+        return render_template("index.html", form=expenses_form, data=data)
+    return render_template("index.html", form=expenses_form, data=None)
+
 
 
 @app.route("/", methods=["POST"])
@@ -179,9 +179,6 @@ def upload_file():
         parse(data, year, month)
         return redirect(url_for('index'))
     elif search_query:
-        # data = db.session.execute(db.select(Destination).where(Destination.airport_code == search_btn)).scalar()
-        # data = db.get_or_404(Destination, search_query)
-        # print(data)
         return redirect(url_for('index', q=search_query))
 
 
