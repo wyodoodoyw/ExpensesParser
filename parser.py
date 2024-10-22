@@ -3,7 +3,6 @@ from PyPDF2 import PdfReader
 from datetime import datetime
 from main import Destination, db, app
 import re
-import json
 
 display_year = None
 display_month = None
@@ -23,7 +22,7 @@ def read_file_lines(path):
     file_as_lines = []
     for line in get_pdf_content_lines(path):
         file_as_lines.append(line)
-
+    # Beijing (PEK) CN PEK 246.42$     $0.00 *No Change 0.0% $49.93 $56.94 $108.29 $31.26 246.42 $
     return file_as_lines
 
 
@@ -49,9 +48,9 @@ def parse(data, year, month):
         if 'Canada' in line:
             new_destination.destination = 'Canada'
         elif 'Jamaica' in line:
-            new_destination.destination = 'Jamaica - Other'
+            new_destination.destination = 'Jamaica'
         elif 'Mexico - Other' in line:
-            new_destination.destination = 'Mexico - Other'
+            new_destination.destination = 'Mexico'
         elif 'U.S.' in line:
             new_destination.destination = 'U.S.'
         else:
@@ -71,7 +70,6 @@ def parse(data, year, month):
             new_destination.bracelet_provided = True
             new_destination.prev_allowance = None
             new_destination.adjustment = None
-            # new_destination.status = None
             new_destination.percent_change = None
             new_destination.breakfast = None
             new_destination.lunch = None
@@ -80,46 +78,42 @@ def parse(data, year, month):
             new_destination.total = None
         else:
             new_destination.bracelet_provided = False
-            price_list = re.findall(r'-?\d{1,3}\.\d{2}', line)
-            # print(f'{new_destination.destination}, Price List: {price_list}')
-            # percentage_list = re.findall(r'\d{1,2}\.\d{1,2}\%', line)
+            price_list = re.findall(r'-?\s*\d{1,3}\.\d{2}?', line)
             new_destination.prev_allowance = price_list[0]
             new_destination.adjustment = price_list[1]
-            # new_destination.status = ('*No Change' in line)
-            # new_destination.percent_change = percentage_list[0]
-            new_destination.percent_change = price_list[2]
-            new_destination.breakfast = price_list[3]
-            new_destination.lunch = price_list[4]
-            new_destination.dinner = price_list[5]
-            new_destination.snack = price_list[6]
-            new_destination.total = price_list[7]
+            new_destination.percent_change = re.findall(r'-?\d{1,2}\.\d{1,2}%', line)[0]
+            new_destination.breakfast = price_list[2]
+            new_destination.lunch = price_list[3]
+            new_destination.dinner = price_list[4]
+            new_destination.snack = price_list[5]
+            new_destination.total = price_list[6]
 
         if 'Zurich' in new_destination.destination:
             new_destination.airport_code = '*'
 
         with app.app_context():
-            # db.session.add(new_destination)
-            # db.session.commit()
+            db.session.add(new_destination)
+            db.session.commit()
             pass
 
 
-def save(new_destination, year, month):
-    # save destination objects to json file
-    file_name = f'{year}'+f'{month}'
-    try:
-        with open(f'{file_name}.json', 'r') as data_file:
-            data = json.load(data_file)
-
-    except FileNotFoundError:
-        with open(f'{file_name}.json', 'w') as data_file:
-            json.dump(new_destination, data_file, indent=4)
-
-    else:
-        data.update(new_destination)
-        with open(f'{file_name}.json', 'w') as data_file:
-            json.dump(data, data_file, indent=4)
-    finally:
-        pass
+# def save(new_destination, year, month):
+#     # save destination objects to json file
+#     file_name = f'{year}' + f'{month}'
+#     try:
+#         with open(f'{file_name}.json', 'r') as data_file:
+#             data = json.load(data_file)
+#
+#     except FileNotFoundError:
+#         with open(f'{file_name}.json', 'w') as data_file:
+#             json.dump(new_destination, data_file, indent=4)
+#
+#     else:
+#         data.update(new_destination)
+#         with open(f'{file_name}.json', 'w') as data_file:
+#             json.dump(data, data_file, indent=4)
+#     finally:
+#         pass
 
 
 # def upload():
@@ -139,7 +133,7 @@ def save(new_destination, year, month):
 def get_expenses_file(year, month):
     file_name = f'{year}' + f'{month}'
     if not exists(f'{file_name}.json'):
-        #upload()
+        # upload()
         pass
 
 
