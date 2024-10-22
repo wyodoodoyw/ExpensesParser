@@ -122,63 +122,6 @@ def save(new_destination, year, month):
         pass
 
 
-# def pre_search(year, month):
-#     search_term = search_entry.get()
-#     is_usa = search_term in ['SFO', 'LAX', 'SAN', 'PSP', 'SMF',
-#                              'SNA', 'MCO', 'TPA', 'FLL', 'PBI',
-#                              'MIA', 'RSW', 'SRQ', 'HNL', 'KOA',
-#                              'OGG', 'LAS', 'ORD', 'DTW', 'MPS',
-#                              'STL', 'CVG', 'CLE', 'CMH', 'IND',
-#                              'EWR', 'BOS', 'LGA', 'PHL', 'PIT',
-#                              'IAD', 'BDL', 'ATL', 'AUS', 'DFW',
-#                              'IAH', 'BNA', 'MSY', 'CHS', 'DEN',
-#                              'PHX', 'SEA', 'SLC', 'PDX', 'ANC']
-#     if re.findall(r'Y[A-Z]{2}', search_term):
-#         search('Canada', year, month)
-#     elif is_usa:
-#         search('U.S.', year, month)
-#     elif search_term in ['MTY', 'TQO']:
-#         search('Mexico - Other', year, month)
-#     elif search_term in ['KIN', 'MBJ']:
-#         search('Jamaica', year, month)
-#     else:
-#         year = datetime.today().year
-#         month = f'{datetime.today().month:02d}'
-#         search(search_term, year, month)
-
-
-# def search(search_term, year, month):
-#     file_name = f'{year}' + f'{month}'
-#     try:
-#         with (open(f'{file_name}.json', 'r') as data_file):
-#             data = json.load(data_file)
-#             for destination in data:
-#                 if search_term in destination:
-#                     destination_label.config(text=destination)
-#                     if data[destination]['bracelet_provided']:
-#                         B_label.config(text='')
-#                         L_label.config(text='')
-#                         D_label.config(text='')
-#                         S_label.config(text='')
-#                         total_label.config(text='Bracelet Provided')
-#                         return
-#                     else:
-#                         B_label.config(text=f'${data[destination]['breakfast']}')
-#                         L_label.config(text=f'${data[destination]['lunch']}')
-#                         D_label.config(text=f'${data[destination]['dinner']}')
-#                         S_label.config(text=f'${data[destination]['snack']}')
-#                         total_label.config(text=f'${data[destination]['total']}')
-#                         return
-#                 else:
-#                     destination_label.config(text='')
-#                     B_label.config(text='')
-#                     L_label.config(text='')
-#                     D_label.config(text='')
-#                     S_label.config(text='')
-#                     total_label.config(text='Not Found')
-#     except FileNotFoundError:
-#         print("File not found.")
-
 # def upload():
 #     file = askopenfile()
 #     full_file_name = file.name
