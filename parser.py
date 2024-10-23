@@ -1,11 +1,15 @@
 from os.path import exists
 from PyPDF2 import PdfReader
 from datetime import datetime
-from main import Destination, db, app
+from sqlalchemy.orm import Session
+from sqlalchemy import create_engine
+from main import YearMonth, Destination, db, app
 import re
 
 display_year = None
 display_month = None
+
+engine = create_engine('sqlite://', echo=True)
 
 
 def get_pdf_content_lines(path):
@@ -39,9 +43,14 @@ def find_end_line(data):
 
 
 def parse(data, year, month):
+    new_entry = YearMonth(
+        id=f'{datetime.today()}',
+        date=f'{year}{month}',
+        destinations=[]
+    )
     for i in range(find_start_line(data), find_end_line(data)):
         new_destination = Destination()
-        new_destination.id = i
+        new_destination.id = f'{year}{month}{i}'
 
         line = data[i]
 
@@ -76,25 +85,39 @@ def parse(data, year, month):
             new_destination.dinner = None
             new_destination.snack = None
             new_destination.total = None
+            new_destination.date_id = new_entry.id
         else:
             new_destination.bracelet_provided = False
-            price_list = re.findall(r'-?\s*\d{1,3}\.\d{2}?', line)
+            price_list = re.findall(r'-?\d{1,3}\.\d{1,2}', line)
+            # ['238.66', '0.00', '0.00', '42.36', '75.39', '94.22', '26.69', '238.66']
+            # ['238.66', '0.00', '0.0', '42.36', '75.39', '94.22', '26.69', '238.66']
+            # print(f'else: {price_list}')
             new_destination.prev_allowance = price_list[0]
             new_destination.adjustment = price_list[1]
             new_destination.percent_change = re.findall(r'-?\d{1,2}\.\d{1,2}%', line)[0]
-            new_destination.breakfast = price_list[2]
-            new_destination.lunch = price_list[3]
-            new_destination.dinner = price_list[4]
-            new_destination.snack = price_list[5]
-            new_destination.total = price_list[6]
+            new_destination.breakfast = price_list[3]
+            new_destination.lunch = price_list[4]
+            new_destination.dinner = price_list[5]
+            new_destination.snack = price_list[6]
+            new_destination.total = price_list[7]
+            new_destination.date_id = new_entry.id
 
         if 'Zurich' in new_destination.destination:
             new_destination.airport_code = '*'
 
+        new_entry.destinations.append(new_destination)
+        # print(new_entry)
+
         with app.app_context():
             db.session.add(new_destination)
-            db.session.commit()
-            pass
+            # db.session.commit()
+    with app.app_context():
+        db.session.add(new_entry)
+        db.session.commit()
+
+    # with Session(engine) as session:
+    #     session.add(new_entry)
+    #     session.commit()
 
 
 # def save(new_destination, year, month):
@@ -138,6 +161,6 @@ def get_expenses_file(year, month):
 
 
 # --- MAIN PROGRAM
-year = datetime.today().year
-month = f'{datetime.today().month:02d}'
+# year = datetime.today().year
+# month = f'{datetime.today().month:02d}'
 # get_expenses_file(year=year, month=month)
