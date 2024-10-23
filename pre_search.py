@@ -18,39 +18,39 @@ def pre_search(search_term):
     if search_term in usa_airports and search_term not in hawaii_airports:
         return {'type': 'destination', 'q': 'U.S.'}
     elif search_term in ['BNE', 'MEL', 'Brisbane', 'Melbourne', 'Australia']:
-        return {'type': 'country', 'q': 'AU'}
+        return {'type': 'country_code', 'q': 'AU'}
     elif search_term in ['BRU', 'LGG', 'Brussels', 'Liège', 'Liege', 'Belgium']:
-        return {'type': 'country', 'q': 'BE'}
+        return {'type': 'country_code', 'q': 'BE'}
     elif search_term in ['DEL', 'BOM', 'Delhi', 'Mumbai', 'Bombay', 'India']:
-        return {'type': 'country', 'q': 'IN'}
+        return {'type': 'country_code', 'q': 'IN'}
     elif search_term in ['DUB', 'SNN', 'Dublin', 'Shannon', 'Ireland']:
-        return {'type': 'country', 'q': 'IE'}
+        return {'type': 'country_code', 'q': 'IE'}
     elif search_term in ['FRA', 'MUC', 'TXL', 'Frankfort', 'Munich', 'Berlin', 'Germany']:
-        return {'type': 'country', 'q': 'DE'}
+        return {'type': 'country_code', 'q': 'DE'}
     elif search_term in ['Hong Kong', 'HK', 'HKG']:
-        return {'type': 'country', 'q': 'HK'}
+        return {'type': 'country_code', 'q': 'HK'}
     elif search_term in ['KIN', 'MBJ']:
-        return {'type': 'country', 'q': 'JM'}
+        return {'type': 'country_code', 'q': 'JM'}
     elif search_term in ['LIS', 'OPO', 'Lisbon', 'Porto', 'Portugal']:
-        return {'type': 'country', 'q': 'PT'}
+        return {'type': 'country_code', 'q': 'PT'}
     elif search_term in ['LHR', 'LGW', 'London', 'Heathrow', 'Gatwick', 'England', 'UK', 'U.K.']:
-        return {'type': 'country', 'q': 'GB'}
+        return {'type': 'country_code', 'q': 'GB'}
     elif search_term in ['MAD', 'BCN', 'Madrid', 'Barcelona', 'Spain']:
-        return {'type': 'country', 'q': 'ES'}
+        return {'type': 'country_code', 'q': 'ES'}
     elif search_term in ['MTY', 'TQO']:
-        return {'type': 'country', 'q': 'MX'}
+        return {'type': 'country_code', 'q': 'MX'}
     elif search_term in ['NRT', 'HND', 'KIX', 'Narita', 'Haneda', 'Osaka', 'Tokyo', 'Japan']:
-        return {'type': 'country', 'q': 'JP'}
+        return {'type': 'country_code', 'q': 'JP'}
     elif search_term in ['CDG', 'LYS', 'NCE', 'TLS', 'Paris', 'Lyon', 'Nice', 'Toulouse', 'France']:
-        return {'type': 'country', 'q': 'FR'}
+        return {'type': 'country_code', 'q': 'FR'}
     elif search_term in ['FCO', 'MXP', 'VCE', 'Rome', 'Milan', 'Venice', 'Italy']:
-        return {'type': 'country', 'q': 'IT'}
+        return {'type': 'country_code', 'q': 'IT'}
     elif search_term in ['GRU', 'GIG', 'Sao Paulo', 'Rio de Janeiro', 'Rio', 'Brazil']:
-        return {'type': 'country', 'q': 'BR'}
+        return {'type': 'country_code', 'q': 'BR'}
     elif search_term in ['SIN', 'QPG', 'Singapore']:
-        return {'type': 'country', 'q': 'SG'}
+        return {'type': 'country_code', 'q': 'SG'}
     elif search_term in ['ZRH', 'GVA', 'BSL', 'Zurich', 'Geneva', 'Basel', 'Swiss', 'Switzerland']:
-        return {'type': 'country', 'q': 'CH'}
+        return {'type': 'country_code', 'q': 'CH'}
     elif re.findall(r'Y[A-Z]{2}', search_term) or search_term in ['Canada']:
         return {'type': 'destination', 'q': 'Canada'}
     elif re.search(r'[A-Z]{3}', search_term):

@@ -1,11 +1,7 @@
-✅1. check if json in folder check
-✅2. if yes, don't prompt to upload file
-✅3. if no, prompt to upload file, copy file to folder etc
-✅4. parse that file
-✅5. detect year/month from pdf and json files
-6. pop-up if current months pdf not uploaded yet
-7. drop down of available months?
-
-
+1. fix search to query new db
+2. make drop down dynamic and query based on selected month/year
+3. move upload functionality into last dropdown option
+4. remove need to save pdf in project
+5. make fields/buttons disabled until able to use?
 
 z. tutorial

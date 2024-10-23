@@ -110,8 +110,8 @@ def upload():
 def get_drop_list():
     with app.app_context():
         files_list = []
-        list = db.session.scalars(select(YearMonth).order_by(YearMonth.month)).all()
-        for i in list:
+        list_of_yearmonths = db.session.scalars(select(YearMonth).order_by(YearMonth.month)).all()
+        for i in list_of_yearmonths:
             files_list.append((f'{i.month} {i.year}', f'{months[str(i.month)]} {i.year}'))
         files_list.append(('upload', 'Upload New File'))
         return files_list
@@ -134,17 +134,29 @@ class ExpensesForm(FlaskForm):
 @app.route("/", methods=["GET"])
 def index():
     expenses_form = ExpensesForm()
-    search_query = request.args.get('q')
+    q = request.args.get('q')
     year = '2024'
-    month = 'October'
-    if search_query:
-        search_query = pre_search(search_query)
+    month = '10'
+    date_id = db.session.scalar(select(YearMonth).where(YearMonth.year == year and YearMonth.month == month)).id
+    # 2024-10-23 16:31:02.360807
+    if q:
+        search_query = pre_search(q)
         if search_query['type'] == 'airport_code':
-            data = Destination.query.filter_by(airport_code=search_query['q']).first()
+            data = db.session.scalar(select(Destination).where(
+                Destination.airport_code == search_query['q'] and
+                Destination.date_id == date_id
+            ))
         elif search_query['type'] == 'destination':
-            data = Destination.query.filter_by(destination=search_query['q']).first()
-        elif search_query['type'] == 'country':
-            data = Destination.query.filter_by(country_code=search_query['q']).first()
+            data = db.session.scalar(select(Destination).where(
+                Destination.destination == search_query['q'] and
+                Destination.date_id == date_id
+
+            ))
+        elif search_query['type'] == 'country_code':
+            data = db.session.scalar(select(Destination).where(
+                Destination.country_code == search_query['q'] and
+                Destination.date_id == date_id
+            ))
         else:
             data = None
         return render_template("index.html", form=expenses_form, data=data, year=year, month=month)
