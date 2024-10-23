@@ -1,15 +1,11 @@
 from os.path import exists
 from PyPDF2 import PdfReader
 from datetime import datetime
-from sqlalchemy.orm import Session
-from sqlalchemy import create_engine
 from main import YearMonth, Destination, db, app
 import re
 
 display_year = None
 display_month = None
-
-engine = create_engine('sqlite://', echo=True)
 
 
 def get_pdf_content_lines(path):
@@ -44,8 +40,9 @@ def find_end_line(data):
 
 def parse(data, year, month):
     new_entry = YearMonth(
-        id=f'{datetime.today()}',
-        date=f'{year}{month}',
+        id=f'{datetime.now()}',
+        year=year,
+        month=month,
         destinations=[]
     )
     for i in range(find_start_line(data), find_end_line(data)):
@@ -110,33 +107,9 @@ def parse(data, year, month):
 
         with app.app_context():
             db.session.add(new_destination)
-            # db.session.commit()
     with app.app_context():
         db.session.add(new_entry)
         db.session.commit()
-
-    # with Session(engine) as session:
-    #     session.add(new_entry)
-    #     session.commit()
-
-
-# def save(new_destination, year, month):
-#     # save destination objects to json file
-#     file_name = f'{year}' + f'{month}'
-#     try:
-#         with open(f'{file_name}.json', 'r') as data_file:
-#             data = json.load(data_file)
-#
-#     except FileNotFoundError:
-#         with open(f'{file_name}.json', 'w') as data_file:
-#             json.dump(new_destination, data_file, indent=4)
-#
-#     else:
-#         data.update(new_destination)
-#         with open(f'{file_name}.json', 'w') as data_file:
-#             json.dump(data, data_file, indent=4)
-#     finally:
-#         pass
 
 
 # def upload():
@@ -158,9 +131,3 @@ def get_expenses_file(year, month):
     if not exists(f'{file_name}.json'):
         # upload()
         pass
-
-
-# --- MAIN PROGRAM
-# year = datetime.today().year
-# month = f'{datetime.today().month:02d}'
-# get_expenses_file(year=year, month=month)

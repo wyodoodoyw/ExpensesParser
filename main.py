@@ -1,17 +1,14 @@
-from flask import Flask, render_template, redirect, url_for, request, jsonify
+from flask import Flask, render_template, redirect, url_for, request
 from flask_bootstrap import Bootstrap5
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
-from sqlalchemy import Integer, String, Float, Boolean, ForeignKey
+from sqlalchemy import Integer, String, Boolean, ForeignKey, select
 from flask_wtf import FlaskForm
-from wtforms import DateField, FileField, SearchField, SelectField, StringField, SubmitField
+from wtforms import FileField, SearchField, SelectField, SubmitField
 from wtforms.validators import DataRequired
-from os import listdir
-from os.path import isfile, join
 from parser import *
 from pre_search import pre_search
 from typing import List
-import requests
 
 app = Flask(__name__)
 
@@ -24,14 +21,15 @@ class Base(DeclarativeBase):
 class YearMonth(Base):
     __tablename__ = 'yearmonth'
     id: Mapped[str] = mapped_column(String, unique=True, primary_key=True)
-    date: Mapped[str] = mapped_column(String, unique=False)
+    year: Mapped[int] = mapped_column(Integer, unique=False)
+    month: Mapped[int] = mapped_column(Integer, unique=False)
 
     destinations: Mapped[List["Destination"]] = relationship(
         back_populates="yearmonth", cascade='all, delete-orphan'
     )
 
     def __repr__(self) -> str:
-        return f'YearMonth (id={self.id!r}, date={self.date!r})'
+        return f'YearMonth (id={self.id!r}, date={self.year!r}-{self.month!r})'
 
 
 class Destination(Base):
@@ -58,23 +56,29 @@ class Destination(Base):
         return f'Destination (name={self.destination!r})'
 
 
-year = datetime.today().year
 months = {
+    '1': 'January',
     '01': 'January',
+    '2': 'February',
     '02': 'February',
+    '3': 'March',
     '03': 'March',
+    '4': 'April',
     '04': 'April',
+    '5': 'May',
     '05': 'May',
+    '6': 'June',
     '06': 'June',
+    '7': 'July',
     '07': 'July',
+    '8': 'August',
     '08': 'August',
+    '9': 'September',
     '09': 'September',
     '10': 'October',
     '11': 'November',
     '12': 'December',
 }
-# month = months[str(datetime.now().month)]
-# month = datetime.now().month
 
 # db_url = f'{year}{datetime.now().month}'
 app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///expenses.db'
@@ -97,21 +101,20 @@ def upload():
     if uploaded_file.filename != '':
         uploaded_file.save(uploaded_file.filename)
         data = read_file_lines(uploaded_file.filename)
+        year = uploaded_file.filename[0:4]
         month = uploaded_file.filename[4:6]
         parse(data, year, month)
     return redirect(url_for('index'))
 
 
 def get_drop_list():
-    files_list = []
-    path = 'instance'
-    # files_list = [f for f in listdir(path) if isfile(join(path, f))]
-    # for file in listdir(path):
-    #     if isfile(join(path, file)):
-    #         files_list.append((file, f'{months[file[4:6]]} {file[0:4]}'))
-    files_list.append(('202410', 'October 2024'))
-    files_list.append(('upload', 'Upload New File'))
-    return files_list
+    with app.app_context():
+        files_list = []
+        list = db.session.scalars(select(YearMonth).order_by(YearMonth.month)).all()
+        for i in list:
+            files_list.append((f'{i.month} {i.year}', f'{months[str(i.month)]} {i.year}'))
+        files_list.append(('upload', 'Upload New File'))
+        return files_list
 
 
 class ExpensesForm(FlaskForm):
@@ -132,6 +135,7 @@ class ExpensesForm(FlaskForm):
 def index():
     expenses_form = ExpensesForm()
     search_query = request.args.get('q')
+    year = '2024'
     month = 'October'
     if search_query:
         search_query = pre_search(search_query)
@@ -156,13 +160,13 @@ def upload_file():
     if upload_btn and uploaded_file.filename != '':
         uploaded_file.save(uploaded_file.filename)
         data = read_file_lines(uploaded_file.filename)
+        year = uploaded_file.filename[0:4]
         month = uploaded_file.filename[4:6]
         parse(data, year, month)
         return redirect(url_for('index'))
     elif search_query:
         return redirect(url_for('index', q=search_query))
     elif dropdown:
-        db_url = request.form.get('dropdown')[:-3]
         return redirect(url_for('index'))
 
 
