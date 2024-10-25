@@ -4,19 +4,35 @@
 {% block title %}Expense Parser{% endblock %}
 
 {% block content %}
-<div class="content">
+<div class="content m-5">
     <h1 class="heading mx-auto text-center">Expense Parser</h1>
-    <div class="mx-auto">
-        <p class="description mx-auto text-center">Pairing Expenses Parser for {{ month }} {{ year }}</p>
+    <div class="col-md-3 mx-auto">
 
-        <div class="mx-auto w-50 p-10">
-            <p>{{ data['destination'] }}</p>
-            <p>Breakfast: ${{ data['breakfast'] }}</p>
-            <p>Lunch: ${{ data['lunch'] }}</p>
-            <p>Dinner: ${{ data['dinner'] }}</p>
-            <p>Snack: ${{ data['snack'] }}</p>
-            <p>-------------------------</p>
-            <p>Total: ${{ data['total'] }}</p>
+        <div class="w-30">
+            <h5 class="text-center pt-4">{{ data['destination'] }}</h5>
+            <h5 class="text-center">{{ month }} {{ year }}</h5>
+            <table class="table table-primary table-striped table-bordered">
+                <tr>
+                    <td>Breakfast:</td>
+                    <td>${{ data['breakfast'] }}</td>
+                </tr>
+                <tr>
+                    <td>Lunch:</td>
+                    <td>${{ data['lunch'] }}</td>
+                </tr>
+                <tr>
+                    <td>Dinner:</td>
+                    <td>${{ data['dinner'] }}</td>
+                </tr>
+                <tr>
+                    <td>Snack:</td>
+                    <td>${{ data['snack'] }}</td>
+                </tr>
+                <tr class="">
+                    <th>Total:</th>
+                    <th>${{ data['total'] }}</th>
+                </tr>
+            </table>
         </div>
     </div>
 </div>

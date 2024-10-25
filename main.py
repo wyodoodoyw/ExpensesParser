@@ -9,6 +9,7 @@ from wtforms.validators import DataRequired
 from parser import *
 from pre_search import pre_search
 from typing import List
+import ctypes
 
 app = Flask(__name__)
 
@@ -113,21 +114,23 @@ def get_drop_list():
         list_of_yearmonths = db.session.scalars(select(YearMonth).order_by(YearMonth.month)).all()
         for i in list_of_yearmonths:
             files_list.append((f'{i.month} {i.year}', f'{months[str(i.month)]} {i.year}'))
-        files_list.append(('upload', 'Upload New File'))
+        # files_list.append(('upload', 'Upload New File'))
         return files_list
 
 
-class ExpensesForm(FlaskForm):
+class UploadForm(FlaskForm):
+    upload_file = FileField(label='Upload a File', name='file')
+    submit_btn = SubmitField(label="Upload", name='upload')
+
+
+class SearchForm(FlaskForm):
     select_date = SelectField(
         label="Select Expenses Month:",
         name='dropdown',
         validators=[DataRequired()],
         choices=get_drop_list()
     )
-    submit_btn2 = SubmitField(label='Submit', name='submit_dropdown')
-    upload_file = FileField(label='Upload a File', name='file')
-    submit_btn = SubmitField(label="Upload", name='upload')
-    search = SearchField(label='Search destination (ex. YYZ, Canada, U.S.):')
+    search = SearchField(label='Search by city, country, or airport code (ex. YYZ, Canada, U.S.):')
     search_btn = SubmitField(label="Search", name='search')
 
 
@@ -160,32 +163,38 @@ def index():
             data = None
         return render_template("result.html", data=data, year=year, month=(months[str(month)]))
     else:
-        expenses_form = ExpensesForm()
-        return render_template("index.html", form=expenses_form)
+        upload_form = UploadForm()
+        search_form = SearchForm()
+        search_form.select_date.default = f'{datetime.now().month} {datetime.now().year}'
+        search_form.process()
+        return render_template("index.html", upload_form=upload_form, search_form=search_form)
 
 
 @app.route("/", methods=["POST"])
-def upload_file():
-    uploaded_file = request.files['file']
-    upload_btn = request.form.get('upload')
-    dropdown = request.form.get('submit_dropdown')
-    search_query = request.form.get('search')
-    if upload_btn and uploaded_file.filename != '':
-        uploaded_file.save(uploaded_file.filename)
-        data = read_file_lines(uploaded_file.filename)
+def index_post():
+    # if uploaded_file := request.files['file']:
+    #     pass
+    if 'upload' in request.form:  # request.form.get('upload') and 'upload' in request.form:
+        uploaded_file = request.files['file']
         year = uploaded_file.filename[0:4]
         month = uploaded_file.filename[4:6]
-        parse(data, year, month)
-        return redirect(url_for('index'))
-    elif search_query:
+        # check if the file has already been uploaded
+        date_id = db.session.scalar(select(YearMonth).where(
+            YearMonth.month == month,
+            YearMonth.year == year
+        ))
+        if not date_id and uploaded_file.filename != '':
+            data = read_file_lines(uploaded_file)
+            parse(data, year, month)
+            return redirect(url_for('index'))
+        else:
+            return redirect(url_for('index'))
+
+    elif 'search' in request.form:
+        search_query = request.form.get('search')
         year = request.form.get('dropdown')[-4:]
         month = re.search(r'\d{1,2}', request.form.get('dropdown'))[0]
         return redirect(url_for('index', q=search_query, year=year, month=month))
-    elif dropdown:
-        year = request.form.get('dropdown')[-4:]
-        month = re.search(r'\d{1,2}', request.form.get('dropdown'))[0]
-        # print(f'month: {month} year: {year}')
-        return redirect(url_for('index', year=year, month=month))
 
 
 if __name__ == '__main__':

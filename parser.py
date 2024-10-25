@@ -1,20 +1,19 @@
-from os.path import exists
 from PyPDF2 import PdfReader
 from datetime import datetime
 from main import YearMonth, Destination, db, app
+from sqlalchemy import select
 import re
 
 display_year = None
 display_month = None
 
 
-def get_pdf_content_lines(path):
+def get_pdf_content_lines(file):
     # pdf --> lines
-    with open(path, 'rb') as f:
-        pdf_reader = PdfReader(f)
-        for page in pdf_reader.pages:
-            for line in page.extract_text().splitlines():
-                yield line
+    pdf_reader = PdfReader(file)
+    for page in pdf_reader.pages:
+        for line in page.extract_text().splitlines():
+            yield line
 
 
 def read_file_lines(path):
@@ -72,7 +71,7 @@ def parse(data, year, month):
         else:
             new_destination.airport_code = '*'
         # destinations can be bracelet or per diem
-        if not '$' in line:
+        if '$' not in line:
             new_destination.bracelet_provided = True
             new_destination.prev_allowance = None
             new_destination.adjustment = None
@@ -88,7 +87,6 @@ def parse(data, year, month):
             price_list = re.findall(r'-?\d{1,3}\.\d{1,2}', line)
             # ['238.66', '0.00', '0.00', '42.36', '75.39', '94.22', '26.69', '238.66']
             # ['238.66', '0.00', '0.0', '42.36', '75.39', '94.22', '26.69', '238.66']
-            # print(f'else: {price_list}')
             new_destination.prev_allowance = price_list[0]
             new_destination.adjustment = price_list[1]
             new_destination.percent_change = re.findall(r'-?\d{1,2}\.\d{1,2}%', line)[0]
@@ -108,26 +106,12 @@ def parse(data, year, month):
         with app.app_context():
             db.session.add(new_destination)
     with app.app_context():
+        # print(date_id)
+        # if date_id:
+        #     # entry_to_update = db.session.query(YearMonth).where(id=yearmonth_id).first()
+        #     # db.session.
+        #     print('pass')
+        #     pass
+        # else:
         db.session.add(new_entry)
         db.session.commit()
-
-
-# def upload():
-#     file = askopenfile()
-#     full_file_name = file.name
-#     file_name_suffix = re.split('/', full_file_name)[-1]
-#     if re.findall(r'202\d{3}-Meal\s?Allowances\.\w{3}', file_name_suffix):
-#         year = re.findall(r'\d{6}', file_name_suffix)[0][:4]
-#         month = re.findall(r'\d{6}', file_name_suffix)[0][-2:]
-#         data = read_file_lines(full_file_name)
-#         parse(data, year, month)
-#     else:
-#         print(f'File does not match. You uploaded: {file_name_suffix}')
-#         print('Filename format expected" 202xxx-MealAllowances.pdf')
-#         pass
-
-def get_expenses_file(year, month):
-    file_name = f'{year}' + f'{month}'
-    if not exists(f'{file_name}.json'):
-        # upload()
-        pass

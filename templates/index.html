@@ -4,25 +4,16 @@
 {% block title %}Expense Parser{% endblock %}
 
 {% block content %}
-<div class="content">
-    <h1 class="heading mx-auto text-center">Expense Parser</h1>
-    <div class="mx-auto">
+<div class="content m-5">
+    <h1 class="heading mx-auto text-center pb-5">Expense Parser</h1>
+    <div class="col-md-6 mx-auto bg-light p-3">
 
-        {% if form %}
-        <div class="col-md-6 mx-auto">{{ render_form(form, novalidate=True) }}</div>
+        <h3 class="">Upload an Expenses File</h3>
+        <p class="">Example: 202408-MealAllowances.pdf</p>
+        <div class="">{{ render_form(upload_form, novalidate=True) }}</div>
+        <h3 class="pt-5">Search a previously uploaded file</h3>
+        <div class="">{{ render_form(search_form, novalidate=True) }}</div>
 
-        {% if data %}
-        <div class="mx-auto w-50 p-10">
-            <p>{{ data['destination'] }}</p>
-            <p>Breakfast: ${{ data['breakfast'] }}</p>
-            <p>Lunch: ${{ data['lunch'] }}</p>
-            <p>Dinner: ${{ data['dinner'] }}</p>
-            <p>Snack: ${{ data['snack'] }}</p>
-            <p>-------------------------</p>
-            <p>Total: ${{ data['total'] }}</p>
-        </div>
-        {% endif %}
-        {% endif %}
 
     </div>
 </div>
