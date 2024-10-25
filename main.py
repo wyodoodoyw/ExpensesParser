@@ -133,34 +133,35 @@ class ExpensesForm(FlaskForm):
 
 @app.route("/", methods=["GET"])
 def index():
-    expenses_form = ExpensesForm()
-    q = request.args.get('q')
-    year = '2024'
-    month = '10'
-    date_id = db.session.scalar(select(YearMonth).where(YearMonth.year == year and YearMonth.month == month)).id
-    # 2024-10-23 16:31:02.360807
-    if q:
+    if q := request.args.get('q'):
         search_query = pre_search(q)
+        year = request.args.get('year')
+        month = request.args.get('month')
+        date_id = db.session.scalar(select(YearMonth).where(YearMonth.year == year and YearMonth.month == month)).id
+        # print(date_id)
+        # 2024-10-23 16:31:02.360807
         if search_query['type'] == 'airport_code':
             data = db.session.scalar(select(Destination).where(
-                Destination.airport_code == search_query['q'] and
+                Destination.airport_code == search_query['q'],
                 Destination.date_id == date_id
             ))
         elif search_query['type'] == 'destination':
             data = db.session.scalar(select(Destination).where(
-                Destination.destination == search_query['q'] and
+                Destination.destination == search_query['q'],
                 Destination.date_id == date_id
 
             ))
         elif search_query['type'] == 'country_code':
             data = db.session.scalar(select(Destination).where(
-                Destination.country_code == search_query['q'] and
+                Destination.country_code == search_query['q'],
                 Destination.date_id == date_id
             ))
         else:
             data = None
-        return render_template("index.html", form=expenses_form, data=data, year=year, month=month)
-    return render_template("index.html", form=expenses_form, data=None, year=year, month=month)
+        return render_template("result.html", data=data, year=year, month=(months[str(month)]))
+    else:
+        expenses_form = ExpensesForm()
+        return render_template("index.html", form=expenses_form)
 
 
 @app.route("/", methods=["POST"])
@@ -177,9 +178,14 @@ def upload_file():
         parse(data, year, month)
         return redirect(url_for('index'))
     elif search_query:
-        return redirect(url_for('index', q=search_query))
+        year = request.form.get('dropdown')[-4:]
+        month = re.search(r'\d{1,2}', request.form.get('dropdown'))[0]
+        return redirect(url_for('index', q=search_query, year=year, month=month))
     elif dropdown:
-        return redirect(url_for('index'))
+        year = request.form.get('dropdown')[-4:]
+        month = re.search(r'\d{1,2}', request.form.get('dropdown'))[0]
+        # print(f'month: {month} year: {year}')
+        return redirect(url_for('index', year=year, month=month))
 
 
 if __name__ == '__main__':
