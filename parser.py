@@ -22,6 +22,7 @@ def read_file_lines(path):
     for line in get_pdf_content_lines(path):
         file_as_lines.append(line)
     # Beijing (PEK) CN PEK 246.42$     $0.00 *No Change 0.0% $49.93 $56.94 $108.29 $31.26 246.42 $
+    # Havana (HAV) CU HAV 122.36$     -$0.51 -0.41% $24.56 $27.81 $55.09 $14.39 121.85 $
     return file_as_lines
 
 
@@ -84,9 +85,8 @@ def parse(data, year, month):
             new_destination.date_id = new_entry.id
         else:
             new_destination.bracelet_provided = False
-            price_list = re.findall(r'-?\d{1,3}\.\d{1,2}', line)
-            # ['238.66', '0.00', '0.00', '42.36', '75.39', '94.22', '26.69', '238.66']
-            # ['238.66', '0.00', '0.0', '42.36', '75.39', '94.22', '26.69', '238.66']
+            price_list = re.findall(r'-?\$?\d{1,3}\.\d{1,2}%?', line)
+            price_list = [re.sub('$', '', s) for s in price_list]
             new_destination.prev_allowance = price_list[0]
             new_destination.adjustment = price_list[1]
             new_destination.percent_change = re.findall(r'-?\d{1,2}\.\d{1,2}%', line)[0]
