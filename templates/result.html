@@ -1,5 +1,4 @@
 {% extends 'base.html' %}
-{% from 'bootstrap5/form.html' import render_form %}
 
 {% block title %}Expense Parser{% endblock %}
 
@@ -36,4 +35,10 @@
         </div>
     </div>
 </div>
+
+<footer class="bg-body-tertiary text-center text-lg-start">
+    <div class="text-center p-3" style="background-color: rgba(0, 0, 0, 0.05);">
+        Copyright &copy; {{ now }}. Matthew Wood
+    </div>
+</footer>
 {% endblock %}

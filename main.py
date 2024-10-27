@@ -128,7 +128,7 @@ class SearchForm(FlaskForm):
         # choices=get_drop_list()
     )
     search = SearchField(
-        label='Search by city, country, or airport code (ex. YYZ, Canada, U.S.):',
+        label='Search by airport code, city, or country (ex. YYZ, Canada, U.S.):',
         validators=[DataRequired(), Length(min=1, message='Please include a search query.')]
     )
     search_btn = SubmitField(label="Search", name='search')
@@ -144,6 +144,7 @@ def delete_db():
 
 @app.route("/", methods=["GET"])
 def index():
+    now = datetime.now().year
     if q := request.args.get('q'):
         search_query = pre_search(q)
         year = request.args.get('year')
@@ -169,7 +170,7 @@ def index():
             ))
         else:
             data = None
-        return render_template("result.html", data=data, year=year, month=(months[str(month)]))
+        return render_template("result.html", data=data, year=year, month=(months[str(month)]), now=now)
     else:
         upload_form = UploadForm()
         # upload_form.validate_on_submit()
@@ -184,12 +185,14 @@ def index():
             "index.html",
             upload_form=upload_form,
             search_form=search_form,
-            delete_form=delete_form
+            delete_form=delete_form,
+            now=now
         )
 
 
 @app.route("/", methods=["POST"])
 def index_post():
+    now = datetime.now().year
     if 'upload' in request.form:
         uploaded_file = request.files['file']
         year = uploaded_file.filename[0:4]

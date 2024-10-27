@@ -2,7 +2,7 @@
 ✅2. make drop down dynamic and query based on selected month/year
 ✅3. Adjustment not detecting negatives
 ✅4. remove need to save pdf in project
-5. make fields/buttons disabled until able to use OR loading indicator
+5. Validators / make fields/buttons disabled until able to use OR loading indicator
 6. update db if same month uploaded a second time
 ✅7. formatting
 8. service worker

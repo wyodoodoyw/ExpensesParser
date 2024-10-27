@@ -95,6 +95,8 @@ def pre_search(search_term):
     # --- Caribbean/Sun ---
     elif search_term in ['KIN', 'MBJ']:
         return {'type': 'country_code', 'q': 'JM'}
+    elif search_term in ['Grenada', 'GND']:
+        return {'type': 'airport_code', 'q': 'GND'}
 
     # --- Europe ---
     elif search_term in ['BRU', 'LGG', 'Brussels', 'Liège', 'Liege', 'Belgium']:
