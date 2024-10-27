@@ -5,8 +5,8 @@
 
 {% block content %}
 <div class="content m-5">
-    <h1 class="heading mx-auto text-center">Expense Parser</h1>
-    <div class="col-md-3 mx-auto">
+    <h1 class="heading mx-auto text-center pb-5">Expense Parser</h1>
+    <div class="col-md-3 mx-auto bg-light p-3">
 
         <div class="w-30">
             <h5 class="text-center pt-4">{{ data['destination'] }}</h5>
@@ -14,23 +14,23 @@
             <table class="table table-primary table-striped table-bordered">
                 <tr>
                     <td>Breakfast:</td>
-                    <td>${{ data['breakfast'] }}</td>
+                    <td class="text-end">${{ data['breakfast'] }}</td>
                 </tr>
                 <tr>
                     <td>Lunch:</td>
-                    <td>${{ data['lunch'] }}</td>
+                    <td class="text-end">${{ data['lunch'] }}</td>
                 </tr>
                 <tr>
                     <td>Dinner:</td>
-                    <td>${{ data['dinner'] }}</td>
+                    <td class="text-end">${{ data['dinner'] }}</td>
                 </tr>
                 <tr>
                     <td>Snack:</td>
-                    <td>${{ data['snack'] }}</td>
+                    <td class="text-end">${{ data['snack'] }}</td>
                 </tr>
                 <tr class="">
                     <th>Total:</th>
-                    <th>${{ data['total'] }}</th>
+                    <th class="text-end">${{ data['total'] }}</th>
                 </tr>
             </table>
         </div>

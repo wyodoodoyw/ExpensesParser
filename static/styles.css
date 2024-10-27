@@ -5,6 +5,11 @@ background-color: white;
 #delete {
     background: red;
     border: red;
+    opacity: 0.5;
+}
+
+.delete_label {
+    opacity: 0.7;
 }
 
 .loader {

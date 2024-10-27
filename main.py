@@ -174,8 +174,9 @@ def index():
         upload_form = UploadForm()
         # upload_form.validate_on_submit()
         search_form = SearchForm()
-        search_form.select_date.choices = get_drop_list()
         search_form.select_date.default = f'{datetime.now().month} {datetime.now().year}'
+        search_form.select_date.choices = get_drop_list()
+        # search_form.select_date.default = f'{datetime.now().month} {datetime.now().year}'
         # search_form.validate_on_submit()
         delete_form = DeleteForm()
         # search_form.process()
