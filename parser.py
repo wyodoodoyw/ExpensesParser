@@ -85,8 +85,11 @@ def parse(data, year, month):
             new_destination.date_id = new_entry.id
         else:
             new_destination.bracelet_provided = False
-            price_list = re.findall(r'-?\$?\d{1,3}\.\d{1,2}%?', line)
-            price_list = [re.sub('$', '', s) for s in price_list]
+            unprocessed_price_list = re.findall(r'-?\$?\d{1,3}\.\d{1,2}%?', line)
+            price_list = []
+            for j in unprocessed_price_list:
+                j = j.replace('$', '')
+                price_list.append(j)
             new_destination.prev_allowance = price_list[0]
             new_destination.adjustment = price_list[1]
             new_destination.percent_change = re.findall(r'-?\d{1,2}\.\d{1,2}%', line)[0]
@@ -101,7 +104,6 @@ def parse(data, year, month):
             new_destination.airport_code = '*'
 
         new_entry.destinations.append(new_destination)
-        # print(new_entry)
 
         with app.app_context():
             db.session.add(new_destination)

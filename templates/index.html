@@ -13,8 +13,14 @@
         <div class="">{{ render_form(upload_form, novalidate=True) }}</div>
         <h3 class="pt-5">Search a previously uploaded file</h3>
         <div class="">{{ render_form(search_form, novalidate=True) }}</div>
-
-
+        {% for err in search_form.search.errors %}
+            <span style="color:red">{{ err }}</span>
+        {% endfor %}
     </div>
 </div>
+<div class="ps-5">
+    {{ render_form(delete_form, novalidate=True) }}
+    <label>Delete all uploaded data</label>
+</div>
+
 {% endblock %}

@@ -6,5 +6,7 @@
 6. update db if same month uploaded a second time
 ✅7. formatting
 8. service worker
+✅9. remove $$$
+✅10. uploading or deleting does not require a refresh of server
 
 z. tutorial
