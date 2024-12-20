@@ -40,14 +40,12 @@ def find_end_line(data):
 
 def parse(data, year, month):
     new_entry = YearMonth(
-        id=f'{datetime.now()}',
         year=year,
         month=month,
         destinations=[]
     )
     for i in range(find_start_line(data), find_end_line(data)):
         new_destination = Destination()
-        new_destination.id = f'{year}{month}{i}'
 
         line = data[i]
 
@@ -82,7 +80,6 @@ def parse(data, year, month):
             new_destination.dinner = None
             new_destination.snack = None
             new_destination.total = None
-            new_destination.date_id = new_entry.id
         else:
             new_destination.bracelet_provided = False
             unprocessed_price_list = re.findall(r'-?\$?\d{1,3}\.\d{1,2}%?', line)
@@ -98,7 +95,6 @@ def parse(data, year, month):
             new_destination.dinner = price_list[5]
             new_destination.snack = price_list[6]
             new_destination.total = price_list[7]
-            new_destination.date_id = new_entry.id
 
         if 'Zurich' in new_destination.destination:
             new_destination.airport_code = '*'
@@ -108,12 +104,5 @@ def parse(data, year, month):
         with app.app_context():
             db.session.add(new_destination)
     with app.app_context():
-        # print(date_id)
-        # if date_id:
-        #     # entry_to_update = db.session.query(YearMonth).where(id=yearmonth_id).first()
-        #     # db.session.
-        #     print('pass')
-        #     pass
-        # else:
         db.session.add(new_entry)
         db.session.commit()
