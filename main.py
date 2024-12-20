@@ -81,8 +81,8 @@ months = {
     '12': 'December',
 }
 
-# app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///expenses.db'
 db_url = os.environ.get("SQLALCHEMY_DATABASE_URI", 'sqlite:///expenses.db')
+app.config['SQLALCHEMY_DATABASE_URI'] = db_url
 app.config['SECRET_KEY'] = os.environ.get('FLASK_KEY')
 
 
@@ -206,4 +206,6 @@ def index_post():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    #app.run(debug=True)
+    print(os.environ.get('FLASK_KEY'))
+    app.run()
