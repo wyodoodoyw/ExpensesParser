@@ -1,15 +1,15 @@
 import os
+import sys
+
 from flask import Flask, render_template, redirect, url_for, request
 from flask_bootstrap import Bootstrap5
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 from sqlalchemy import Integer, String, Boolean, ForeignKey, select
-from flask_wtf import FlaskForm
-from wtforms import FileField, SearchField, SelectField, SubmitField
-from wtforms.validators import DataRequired, Length
 from parser import *
 from pre_search import pre_search
 from typing import List
+from forms import UploadForm, SearchForm, DeleteForm
 
 app = Flask(__name__)
 
@@ -21,7 +21,7 @@ class Base(DeclarativeBase):
 
 class YearMonth(Base):
     __tablename__ = 'yearmonth'
-    id: Mapped[str] = mapped_column(String, unique=True, primary_key=True)
+    id: Mapped[str] = mapped_column(String, unique=True, primary_key=True, autoincrement=True)
     year: Mapped[int] = mapped_column(Integer, unique=False)
     month: Mapped[int] = mapped_column(Integer, unique=False)
 
@@ -35,7 +35,7 @@ class YearMonth(Base):
 
 class Destination(Base):
     __tablename__ = 'destination'
-    id: Mapped[int] = mapped_column(Integer, unique=True, primary_key=True)
+    id: Mapped[int] = mapped_column(Integer, unique=True, primary_key=True, autoincrement=True)
     destination: Mapped[str] = mapped_column(String(10), unique=False, nullable=False)
     country_code: Mapped[str] = mapped_column(String(10), unique=False, nullable=False)
     airport_code: Mapped[str] = mapped_column(String(10), unique=False, nullable=False)
@@ -81,13 +81,14 @@ months = {
     '12': 'December',
 }
 
-app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///expenses.db'
-#app.config['SECRET_KEY'] = '8BYkEfBA6O6donzWlSihBXox7C0sKR6b'
+# app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///expenses.db'
+db_url = os.environ.get("SQLALCHEMY_DATABASE_URI", 'sqlite:///expenses.db')
 app.config['SECRET_KEY'] = os.environ.get('FLASK_KEY')
+
+
 
 # Create the extension
 db = SQLAlchemy(model_class=Base)
-
 # Initialize the app with the extension
 db.init_app(app)
 Bootstrap5(app)
@@ -117,32 +118,11 @@ def get_drop_list():
         return files_list
 
 
-class UploadForm(FlaskForm):
-    upload_file = FileField(label='Upload a File', name='file')
-    submit_btn = SubmitField(label="Upload", name='upload')
 
-
-class SearchForm(FlaskForm):
-    select_date = SelectField(
-        label="Select Expenses Month:",
-        name='dropdown',
-        validators=[DataRequired()],
-        # choices=get_drop_list()
-    )
-    search = SearchField(
-        label='Search by airport code, city, or country (ex. YYZ, Canada, U.S.):',
-        validators=[DataRequired(), Length(min=1, message='Please include a search query.')]
-    )
-    search_btn = SubmitField(label="Search", name='search')
-
-
-class DeleteForm(FlaskForm):
-    delete_btn = SubmitField(label="Delete", name='delete', id='delete')
 
 
 def delete_db():
     print('delete')
-
 
 @app.route("/", methods=["GET"])
 def index():
