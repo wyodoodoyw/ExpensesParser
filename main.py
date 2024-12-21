@@ -36,7 +36,7 @@ class YearMonth(Base):
 class Destination(Base):
     __tablename__ = 'destination'
     id: Mapped[int] = mapped_column(Integer, unique=True, primary_key=True, autoincrement=True)
-    destination: Mapped[str] = mapped_column(String(10), unique=False, nullable=False)
+    destination: Mapped[str] = mapped_column(String(100), unique=False, nullable=False)
     country_code: Mapped[str] = mapped_column(String(10), unique=False, nullable=False)
     airport_code: Mapped[str] = mapped_column(String(10), unique=False, nullable=False)
     bracelet_provided: Mapped[bool] = mapped_column(Boolean, unique=False, nullable=False, default=False)
