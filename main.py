@@ -5,7 +5,6 @@ from flask_bootstrap import Bootstrap5
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 from sqlalchemy import Integer, String, Boolean, ForeignKey, select
-
 from pre_search import pre_search
 from typing import List
 from forms import UploadForm, SearchForm, DeleteForm
