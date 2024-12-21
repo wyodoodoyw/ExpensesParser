@@ -37,18 +37,18 @@ class Destination(Base):
     __tablename__ = 'destination'
     id: Mapped[int] = mapped_column(Integer, unique=True, primary_key=True, autoincrement=True)
     destination: Mapped[str] = mapped_column(String(100), unique=False, nullable=False)
-    country_code: Mapped[str] = mapped_column(String(10), unique=False, nullable=False)
-    airport_code: Mapped[str] = mapped_column(String(10), unique=False, nullable=False)
+    country_code: Mapped[str] = mapped_column(String(100), unique=False, nullable=False)
+    airport_code: Mapped[str] = mapped_column(String(100), unique=False, nullable=False)
     bracelet_provided: Mapped[bool] = mapped_column(Boolean, unique=False, nullable=False, default=False)
-    prev_allowance: Mapped[str] = mapped_column(String(10), unique=False, nullable=True)
-    adjustment: Mapped[str] = mapped_column(String(10), unique=False, nullable=True)
+    prev_allowance: Mapped[str] = mapped_column(String(100), unique=False, nullable=True)
+    adjustment: Mapped[str] = mapped_column(String(100), unique=False, nullable=True)
     # status: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
-    percent_change: Mapped[str] = mapped_column(String(10), unique=False, nullable=True)
-    breakfast: Mapped[str] = mapped_column(String(10), unique=False, nullable=True)
-    lunch: Mapped[str] = mapped_column(String(10), unique=False, nullable=True)
-    dinner: Mapped[str] = mapped_column(String(10), unique=False, nullable=True)
-    snack: Mapped[str] = mapped_column(String(10), unique=False, nullable=True)
-    total: Mapped[str] = mapped_column(String(10), unique=False, nullable=True)
+    percent_change: Mapped[str] = mapped_column(String(100), unique=False, nullable=True)
+    breakfast: Mapped[str] = mapped_column(String(100), unique=False, nullable=True)
+    lunch: Mapped[str] = mapped_column(String(100), unique=False, nullable=True)
+    dinner: Mapped[str] = mapped_column(String(100), unique=False, nullable=True)
+    snack: Mapped[str] = mapped_column(String(100), unique=False, nullable=True)
+    total: Mapped[str] = mapped_column(String(100), unique=False, nullable=True)
 
     date_id: Mapped[int] = mapped_column(ForeignKey('yearmonth.id'), unique=False, nullable=True)
     yearmonth: Mapped['YearMonth'] = relationship(back_populates='destinations')
@@ -300,6 +300,5 @@ def index_post():
 
 
 if __name__ == '__main__':
-    # app.run(debug=True)
+    app.run(debug=True)
     # print(os.environ.get('FLASK_KEY'))
-    app.run()
