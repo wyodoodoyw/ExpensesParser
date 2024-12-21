@@ -1,6 +1,5 @@
 import os
-import sys
-
+from datetime import datetime
 from flask import Flask, render_template, redirect, url_for, request
 from flask_bootstrap import Bootstrap5
 from flask_sqlalchemy import SQLAlchemy
@@ -21,7 +20,7 @@ class Base(DeclarativeBase):
 
 class YearMonth(Base):
     __tablename__ = 'yearmonth'
-    id: Mapped[str] = mapped_column(String, unique=True, primary_key=True, autoincrement=True)
+    id: Mapped[int] = mapped_column(Integer, unique=True, primary_key=True, autoincrement=True)
     year: Mapped[int] = mapped_column(Integer, unique=False)
     month: Mapped[int] = mapped_column(Integer, unique=False)
 
@@ -82,7 +81,8 @@ months = {
 }
 
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("SQLALCHEMY_DATABASE_URI", 'sqlite:///expenses.db')
-app.config['SECRET_KEY'] = os.environ.get('FLASK_KEY')
+# app.config['SECRET_KEY'] = os.environ.get('FLASK_KEY')
+app.config['SECRET_KEY'] = 'secretk3y'
 
 
 
@@ -154,14 +154,10 @@ def index():
         return render_template("result.html", data=data, year=year, month=(months[str(month)]), now=now)
     else:
         upload_form = UploadForm()
-        # upload_form.validate_on_submit()
         search_form = SearchForm()
         search_form.select_date.default = f'{datetime.now().month} {datetime.now().year}'
         search_form.select_date.choices = get_drop_list()
-        # search_form.select_date.default = f'{datetime.now().month} {datetime.now().year}'
-        # search_form.validate_on_submit()
         delete_form = DeleteForm()
-        # search_form.process()
         return render_template(
             "index.html",
             upload_form=upload_form,
@@ -205,6 +201,6 @@ def index_post():
 
 
 if __name__ == '__main__':
-    #app.run(debug=True)
-    print(os.environ.get('FLASK_KEY'))
-    app.run()
+    app.run(debug=True)
+    # print(os.environ.get('FLASK_KEY'))
+    # app.run()

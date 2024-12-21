@@ -1,8 +1,7 @@
 from PyPDF2 import PdfReader
-from datetime import datetime
-from main import YearMonth, Destination, db, app
-from sqlalchemy import select
+from main import db, app, YearMonth, Destination
 import re
+
 
 display_year = None
 display_month = None
