@@ -5,6 +5,16 @@ from forms import UploadForm, SearchForm, DeleteForm
 from setup import *
 
 app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("SQLALCHEMY_DATABASE_URI", 'sqlite:///expenses.db')
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
+
+# Create the extension
+db = SQLAlchemy(model_class=Base)
+# Initialize the app with the extension
+db.init_app(app)
+Bootstrap5(app)
+
+
 #
 #
 # # CREATE DB

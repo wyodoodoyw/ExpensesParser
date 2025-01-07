@@ -9,8 +9,6 @@ from typing import List
 from PyPDF2 import PdfReader
 from main import app
 
-# app = Flask(__name__)
-
 
 # CREATE DB
 class Base(DeclarativeBase):
@@ -53,17 +51,6 @@ class Destination(Base):
 
     def __repr__(self) -> str:
         return f'Destination (name={self.destination!r})'
-
-
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("SQLALCHEMY_DATABASE_URI", 'sqlite:///expenses.db')
-app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
-
-
-# Create the extension
-db = SQLAlchemy(model_class=Base)
-# Initialize the app with the extension
-db.init_app(app)
-Bootstrap5(app)
 
 # Create table schema in the database. Require application context
 with app.app_context():
