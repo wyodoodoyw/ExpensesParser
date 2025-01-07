@@ -1,10 +1,10 @@
 from datetime import datetime
-from flask import render_template
+from flask import Flask, render_template
 from pre_search import pre_search
 from forms import UploadForm, SearchForm, DeleteForm
 from setup import *
 
-# app = Flask(__name__)
+app = Flask(__name__)
 #
 #
 # # CREATE DB

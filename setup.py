@@ -7,8 +7,9 @@ from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 from sqlalchemy import Integer, String, Boolean, ForeignKey, select
 from typing import List
 from PyPDF2 import PdfReader
+from main import app
 
-app = Flask(__name__)
+# app = Flask(__name__)
 
 
 # CREATE DB
@@ -55,8 +56,8 @@ class Destination(Base):
 
 
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("SQLALCHEMY_DATABASE_URI", 'sqlite:///expenses.db')
-# app.config['SECRET_KEY'] = os.environ.get('FLASK_KEY')
-app.config['SECRET_KEY'] = 'secretk3y'
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
+
 
 # Create the extension
 db = SQLAlchemy(model_class=Base)
