@@ -1,8 +1,15 @@
+import os
+import re
 from datetime import datetime
-from flask import Flask, render_template
+from flask import Flask, render_template, redirect, url_for, request
+from flask_bootstrap import Bootstrap5
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
+from sqlalchemy import Integer, String, Boolean, ForeignKey, select
+from typing import List
+from PyPDF2 import PdfReader
 from pre_search import pre_search
 from forms import UploadForm, SearchForm, DeleteForm
-from setup import *
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("SQLALCHEMY_DATABASE_URI", 'sqlite:///expenses.db')
@@ -13,8 +20,6 @@ db = SQLAlchemy(model_class=Base)
 # Initialize the app with the extension
 db.init_app(app)
 Bootstrap5(app)
-
-
 
 
 # CREATE DB
@@ -87,7 +92,6 @@ months = {
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("SQLALCHEMY_DATABASE_URI", 'sqlite:///expenses.db')
 # app.config['SECRET_KEY'] = os.environ.get('FLASK_KEY')
 app.config['SECRET_KEY'] = 'secretk3y'
-
 
 # Create the extension
 db = SQLAlchemy(model_class=Base)
